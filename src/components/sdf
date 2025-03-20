@@ -1,0 +1,139 @@
+const {
+  createAgoraRtcEngine,
+  ChannelProfileType,
+  ClientRoleType,
+  VideoSourceType,
+  VideoViewSetupMode,
+} = require("agora-electron-sdk");
+
+let rtcEngine;
+let localVideoContainer;
+let remoteVideoContainer;
+
+// Fill in your App ID
+const APPID = "24a7ad955a1e4dd6a598d405249ca7db";
+// Fill in your temporary Token
+let token =
+  "007eJxTYDj+zzBuRpmby7XHj079WOqVvi9ErPTrHHfj+IjwOzoTp1koMBiZJJonpliamiYappqkpJglmlpapJgYmBqZWCYnmqcktajdSG8IZGS4cbKMgREKQXwWhpLU4hIGBgDSYiFc";
+// Fill in the channel name used when generating Token
+const channel = "test";
+// User ID, and ensure its uniqueness within the channel
+let uid = 123;
+
+// Event handlers for Agora events
+const eventHandlers = {
+  // Triggered when the local user successfully joins the channel
+  onJoinChannelSuccess: ({ channelId }) => {
+    console.log("Successfully joined the channel:" + channelId);
+  },
+
+  // Triggered when a remote user joins the channel
+  onUserJoined: ({ channelId }, remoteUid) => {
+    console.log("Remote user " + remoteUid + " has joined.");
+    displayRemoteVideo(remoteUid, channelId);
+  },
+
+  // Triggered when a remote user leaves the channel
+  onUserOffline: ({ channelId }, remoteUid) => {
+    console.log("Remote user " + remoteUid + " left the channel.");
+    displayRemoteVideo(
+      remoteUid,
+      channelId,
+      VideoViewSetupMode.VideoViewSetupRemove
+    );
+  },
+};
+
+// Sets up UI elements
+function setupUI() {
+  localVideoContainer = document.getElementById("join-channel-local-video");
+  remoteVideoContainer = document.getElementById("join-channel-remote-video");
+}
+
+// Initializes the Agora RTC engine
+function initializeAgoraEngine() {
+  const os = require("os");
+  const path = require("path");
+  const sdkLogPath = path.resolve(os.homedir(), "./test.log");
+
+  rtcEngine = createAgoraRtcEngine();
+  rtcEngine.initialize({
+    appId: APPID,
+    logConfig: { filePath: sdkLogPath },
+  });
+
+  rtcEngine.registerEventHandler(eventHandlers);
+  console.log("Agora RTC Engine initialized.");
+}
+
+// Joins the Agora channel
+function joinChannel() {
+  rtcEngine.joinChannel(token, channel, uid, {
+    // Set the channel scene to live broadcast scene
+    channelProfile: ChannelProfileType.ChannelProfileCommunication,
+    // Set the user role to anchor; if you want to set the user role to audience, keep the default value
+    clientRoleType: ClientRoleType.ClientRoleBroadcaster,
+    // Publish the audio collected by the microphone
+    publishMicrophoneTrack: true,
+    // Publish the video captured by the camera
+    publishCameraTrack: true,
+    // Automatically subscribe to all audio streams
+    autoSubscribeAudio: true,
+    // Automatically subscribe to all video streams
+    autoSubscribeVideo: true,
+  });
+}
+
+// Displays the local user's video
+function displayLocalVideo() {
+  rtcEngine.enableVideo();
+  rtcEngine.startPreview();
+  rtcEngine.setupLocalVideo({
+    sourceType: VideoSourceType.VideoSourceCameraPrimary,
+    uid: uid,
+    view: localVideoContainer,
+    setupMode: VideoViewSetupMode.VideoViewSetupAdd,
+  });
+}
+
+// Displays the remote user's video
+function displayRemoteVideo(
+  remoteUid,
+  channelId,
+  viewSetupMode = VideoViewSetupMode.VideoViewSetupAdd
+) {
+  rtcEngine.setupRemoteVideo(
+    {
+      sourceType: VideoSourceType.VideoSourceRemote,
+      uid: remoteUid,
+      view: remoteVideoContainer,
+      setupMode: viewSetupMode,
+    },
+    { channelId }
+  );
+}
+
+// Leaves the Agora channel
+function leaveChannel() {
+  rtcEngine.leaveChannel();
+}
+
+// Cleans up and releases Agora resources
+function cleanupAgoraEngine() {
+  rtcEngine.unregisterEventHandler(eventHandlers);
+  rtcEngine.release();
+}
+
+// Initialize UI and Agora engine on window load
+window.onload = () => {
+  setupUI();
+  initializeAgoraEngine();
+  displayLocalVideo();
+  joinChannel();
+};
+
+// Cleanup on window close
+window.onabort = () => {
+  leaveChannel();
+  cleanupAgoraEngine();
+};
