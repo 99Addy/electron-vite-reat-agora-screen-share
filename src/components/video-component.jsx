@@ -22,7 +22,7 @@ export const VideoCalling = () => {
 
 const Basics = () => {
   const [calling, setCalling] = useState(false);
-  const isConnected = useIsConnected(); // Store the user's connection status
+  const isConnected = True; //useIsConnected(); // Store the user's connection status
   const [appId, setAppId] = useState("<-- Insert App ID -->");
   const [channel, setChannel] = useState("<-- Insert Channel Name -->");
   const [token, setToken] = useState("<-- Insert Token -->");

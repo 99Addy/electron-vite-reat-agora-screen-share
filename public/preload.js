@@ -1,14 +1,22 @@
-// preload.js
+const { contextBridge, desktopCapturer, ipcRenderer } = require("electron");
 
-// All the Node.js APIs are available in the preload process.
-// It has the same sandbox as a Chrome extension.
-window.addEventListener("DOMContentLoaded", () => {
-  const replaceText = (selector, text) => {
-    const element = document.getElementById(selector);
-    if (element) element.innerText = text;
-  };
+console.log("✅ Preload script loaded successfully!");
 
-  for (const dependency of ["chrome", "node", "electron"]) {
-    replaceText(`${dependency}-version`, process.versions[dependency]);
-  }
+// Debugging if desktopCapturer is available
+console.log("🖥️ desktopCapturer:", desktopCapturer);
+
+contextBridge.exposeInMainWorld("electron", {
+  getScreenSources: async () => {
+    console.log("📢 getScreenSources called in preload.js");
+
+    console.log("📢 Requesting screen sources from main process...");
+    return await ipcRenderer.invoke("get-screen-sources");
+
+    // if (!desktopCapturer) {
+    //   console.error("❌ desktopCapturer is undefined in preload.js!");
+    //   return [];
+    // }
+
+    // return await desktopCapturer.getSources({ types: ["window", "screen"] });
+  },
 });

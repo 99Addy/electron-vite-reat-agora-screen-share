@@ -1,3 +1,7 @@
+#specific files
+*copy.jsx
+*.backup
+
 # Logs
 logs
 *.log
