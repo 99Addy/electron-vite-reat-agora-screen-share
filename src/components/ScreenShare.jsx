@@ -1,10 +1,11 @@
-import { useState } from "react";
-import AgoraClient from "./AgoraClient";
-
-const agoraClient = new AgoraClient("45cbaabd405f40f99e9ef10485d1d39d");
+import { useAgora } from "../context/AgoraContext";
 
 const ScreenShare = ({ channelName, isChannelJoined, setLocalTrack }) => {
-  // const [screenTrack, setScreenTrack] = useState(null);
+  const { agoraClient } = useAgora();
+
+  console.log("🔗 In ScreenShare.jsx ; AgoraClient instance:", agoraClient);
+  // console.log("🔗 Type of agoraClient:", typeof agoraClient);
+  // console.log("🔗 Available properties:", Object.keys(agoraClient || {}));
 
   const startScreenShare = async () => {
     if (!channelName) {
@@ -13,26 +14,32 @@ const ScreenShare = ({ channelName, isChannelJoined, setLocalTrack }) => {
     }
 
     try {
-      console.log("Requesting screen sources...");
+      console.log(
+        " In Screenshare.jsx; Requesting screen sources from preload.js..."
+      );
       const sources = await window.electron.getScreenSources();
 
       if (sources.length === 0)
         return console.error("No screen sources found!");
 
-      console.log("Using source:", sources[0]);
+      let source;
+
+      if (sources.length === 1) {
+        console.log("In Screenshare.jsx; Using source:", sources[0]);
+        source = sources[0];
+      } else {
+        console.log("In Screenshare.jsx; Using source:", sources[1]);
+        source = sources[1];
+      }
 
       await agoraClient.joinChannel(channelName).then(() => {
         isChannelJoined(true);
-        console.log(`🔗 Joined channel: ${channelName}`);
+        console.log(`🔗In Screenshare.jsx Joined channel: ${channelName}`);
       });
 
-      await agoraClient.startScreenShare(sources[0].id).then(() => {
+      await agoraClient.startScreenShare(source.id).then(() => {
         setLocalTrack(agoraClient.localTrack); // Pass to VideoPlayer
       });
-
-      // if (agoraClient.remoteTrack) {
-      //   onRemoteUserJoined();
-      // }
     } catch (error) {
       console.error("Screen sharing failed:", error);
     }

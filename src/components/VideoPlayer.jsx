@@ -1,9 +1,10 @@
 import { useEffect, useRef } from "react";
+import { useAgora } from "../context/AgoraContext";
 
-const VideoPlayer = ({ localTrack, remoteTrack }) => {
+const VideoPlayer = ({ localTrack }) => {
   console.log("Video Player component loaded!");
-
-  console.log("Local track value in Video Player:", localTrack);
+  const { remoteTrack } = useAgora(); // Access global state
+  console.log("🎥 In VideoPlayer ; localTrack:", localTrack);
 
   const localVideoRef = useRef(null);
   const remoteVideoRef = useRef(null);
@@ -12,8 +13,6 @@ const VideoPlayer = ({ localTrack, remoteTrack }) => {
     if (localTrack && localVideoRef.current) {
       console.log("🎥 Playing local screen...");
       localTrack.play(localVideoRef.current);
-    } else {
-      console.log("⚠️ Local track is missing!");
     }
 
     if (remoteTrack && remoteVideoRef.current) {
@@ -41,7 +40,6 @@ const VideoPlayer = ({ localTrack, remoteTrack }) => {
       {localTrack && (
         <video
           ref={localVideoRef}
-          // style={{ width: "100%", height: "100vh" }}
           style={{
             position: "absolute",
             top: "10px",

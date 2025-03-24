@@ -18,12 +18,13 @@ const createWindow = () => {
   });
 
   // console.log("Chromium Version:", process.versions.chrome);
-  // Chromium Version: 134.0.6998.44 is transparent for contentProtection and is used by last electron version 35.0.0
+  // Chromium Version: 134.0.6998.44 is transparent for contentProtection and is used by last electron version 35.0.0 as on 22 March 2025
   // same version is used by electron 35.0.1 shows black screen for contentProtection
+
   mainWindow.setContentProtection(true);
 
-  mainWindow.loadURL("http://localhost:5173");
-  console.log("URL loaded :", "http://localhost:5173");
+  mainWindow.loadURL("http://localhost:5175");
+  console.log("URL loaded :", "http://localhost:5175");
   console.log("Preload script path :", join(__dirname, "preload.js"));
 };
 

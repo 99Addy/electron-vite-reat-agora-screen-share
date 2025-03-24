@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import ScreenShare from "./ScreenShare copy";
+import ScreenShare from "./ScreenShare";
 import VideoPlayer from "./VideoPlayer";
 
 const ScreenShareApp = () => {
@@ -9,7 +9,9 @@ const ScreenShareApp = () => {
 
   useEffect(() => {
     if (channelJoined) {
-      console.log("Switching to VideoPlayer mode");
+      console.log(
+        "In ScreenShareApp.jsx ; Channel joined switching to VideoPlayer mode"
+      );
     }
   }, [channelJoined]);
 

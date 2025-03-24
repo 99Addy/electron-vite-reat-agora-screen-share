@@ -3,6 +3,9 @@ import AgoraRTC from "agora-rtc-react";
 class AgoraClient {
   constructor(appId) {
     this.client = AgoraRTC.createClient({ mode: "rtc", codec: "vp8" });
+
+    AgoraRTC.setLogLevel(2);
+
     this.localTrack = null;
     this.remoteTrack = null;
     this.channel = "";
@@ -20,7 +23,7 @@ class AgoraClient {
 
       if (mediaType === "video") {
         this.remoteTrack = user.videoTrack;
-        console.log("📡 Remote user joined, displaying remote screen.");
+        console.log("📡 In AgoraClient.jsx ; Remote user joined the channel");
       }
     });
 
